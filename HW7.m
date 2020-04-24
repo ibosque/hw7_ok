@@ -6,7 +6,7 @@ close all
 %( symb_acc gives
 %acc of angles, Symb_angels.m gives the starting position of
 %all angles, symb_slid gives slider acceleration)
-TMT_1()
+TMT_method()
 theta2 = 0;
 w = 75;
 theta2d = w/60*2*pi;
@@ -37,7 +37,7 @@ yi(:,idx+1) = yi(:,idx) + dt*ydi(:,idx);
 
 O2A = 0.2; O4B = 0.7; BC = 0.6;
 O4O2 = 0.3; O4G4 = 0.4; BG5 = 0.3; yC = 0.9;
-% Constrains from TMT_1 copy
+% Constrains from TMT_method copy
 C1 = yC - O4B*sin(yi(3,idx))-BC*sin(yi(5,idx));
 C2 = O2A*cos(yi(1,idx)) - sqrt(((O2A*cos(yi(1,idx)))^2 + (O4O2+O2A*sin(yi(1,idx)))^2))*cos(yi(3,idx));
 Constraints = [C1;C2];
@@ -149,7 +149,7 @@ ydot = [theta2d; theta2dd; theta4d; theta4dd; theta5d; theta5dd];
 end
 %TMT method
 
-function TMT_1()
+function TMT_method()
 syms theta2 theta4 theta5
 syms theta2d theta4d theta5d theta2dd theta4dd theta5dd % for dx/dt I use xd etc
 O2A = 0.2; O4B = 0.7; BC = 0.6;
