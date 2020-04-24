@@ -11,9 +11,9 @@ theta2 = 0;
 w = 75;
 theta2d = w/60*2*pi;
 start_angels;
-theta4 = angels(1);
+theta4  = angels(1);
 theta4d = angels(2);
-theta5 = angels(3);
+theta5  = angels(3);
 theta5d = angels(4);
 yi = [theta2; theta2d; theta4; theta4d; theta5; theta5d];
 n =8;
@@ -38,13 +38,13 @@ yi(:,idx+1) = yi(:,idx) + dt*ydi(:,idx);
 O2A = 0.2; O4B = 0.7; BC = 0.6;
 O4O2 = 0.3; O4G4 = 0.4; BG5 = 0.3; yC = 0.9;
 % Constrains from TMT_1 copy
-Cy = yC - O4B*sin(yi(3,idx))-BC*sin(yi(5,idx));
-ConA = O2A*cos(yi(1,idx)) - sqrt(((O2A*cos(yi(1,idx)))^2 + (O4O2+O2A*sin(yi(1,idx)))^2))*cos(yi(3,idx));
-Constra = [Cy;ConA];
+C1 = yC - O4B*sin(yi(3,idx))-BC*sin(yi(5,idx));
+C2 = O2A*cos(yi(1,idx)) - sqrt(((O2A*cos(yi(1,idx)))^2 + (O4O2+O2A*sin(yi(1,idx)))^2))*cos(yi(3,idx));
+Constraints = [C1;C2];
 %jacobian copy of constrains
 CCd = [0,-(7*cos(yi(3,idx)))/10, -(3*cos(yi(5,idx)))/5; (cos(yi(3,idx))*((2*cos(yi(1,idx))*sin(yi(1,idx)))/25 - (2*cos(yi(1,idx+1))*(sin(yi(1,idx))/5 + 2/5))/5))/(2*(cos(yi(1,idx))^2/25 + (sin(yi(1,idx))/5 + 2/5)^2)^(1/2)) - sin(yi(1,idx))/5, sin(yi(3,idx))*(cos(yi(1,idx))^2/25 + (sin(yi(1,idx))/5 + 2/5)^2)^(1/2), 0];
 Ce = CCd.'*inv(CCd*CCd.'); % making C plus
-error(:,idx) = Ce*-Constra; % calculate the delta q
+error(:,idx) = Ce*-Constraints; % calculate the delta q
 %calculate constrain forces formula 5.20
 Cforce(:,idx) = -1*l1(:,idx).'*CCd;
 % Adding delta q
@@ -176,10 +176,10 @@ Tacc = jacobian(Tiv,qd)*qdd + jacobian(Tiv,q)*qd;
 %making Mass and gravity matrix and vector
 M = diag([J2 m3 m3 J3 m4 m4 J4 m5 m5 J5 m6]);
 % Constrains
-Cy = yC - O4B*sin(theta4)-BC*sin(theta5);
-ConA = O2A*cos(theta2)-sqrt((xA^2+yA^2))*cos(theta4);
-Constra = [Cy;ConA];
-CCd = jacobian(Constra,q);
+C1 = yC - O4B*sin(theta4)-BC*sin(theta5);
+C2 = O2A*cos(theta2)-sqrt((xA^2+yA^2))*cos(theta4);
+Constraints = [C1;C2];
+CCd = jacobian(Constraints,q);
 CCdd = jacobian(CCd*qd,q)*qd;
 
 %Forces
