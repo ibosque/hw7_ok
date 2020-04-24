@@ -7,15 +7,15 @@ close all
 %acc of angles, Symb_angels.m gives the starting position of
 %all angles, symb_slid gives slider acceleration)
 TMT_1()
-g = 0;
+theta2 = 0;
 w = 75;
-gd = w/60*2*pi;
+theta2d = w/60*2*pi;
 start_angels;
-a = angels(1);
-ad = angels(2);
-b = angels(3);
-bd = angels(4);
-yi = [g; gd; a; ad; b; bd];
+theta4 = angels(1);
+theta4d = angels(2);
+theta5 = angels(3);
+theta5d = angels(4);
+yi = [theta2; theta2d; theta4; theta4d; theta5; theta5d];
 n =8;
 t0 = 0;
 tfinal = 1.8; % two rounds is about 1.7... sec so i take 1.8s
@@ -131,44 +131,44 @@ ylim([-0.5,1.5])
 end
 function [ydot, labda, Slider3] = calcydot(yi)
 % yi, current value -> to ydot velocity and acc
-g = yi(1);
-gd = yi(2);
-a = yi(3);
-ad = yi(4);
-b = yi(5);
-bd = yi(6);
+theta2 = yi(1);
+theta2d = yi(2);
+theta4 = yi(3);
+theta4d = yi(4);
+theta5 = yi(5);
+theta5d = yi(6);
 symb_Acc ;
-gdd = Acc(1);
-add = Acc(2);
-bdd = Acc(3);
+theta2dd = Acc(1);
+theta4dd = Acc(2);
+theta5dd = Acc(3);
 labda = Acc(4:5,1);
 symb_slid;
 Slider3 = slid;
 %projection version with constrain
-ydot = [gd; gdd; ad; add; bd; bdd];
+ydot = [theta2d; theta2dd; theta4d; theta4dd; theta5d; theta5dd];
 end
 %TMT method
 
 function TMT_1()
-syms g a b
-syms gd ad bd gdd add bdd % for dx/dt I use xd etc
+syms theta2 theta4 theta5
+syms theta2d theta4d theta5d theta2dd theta4dd theta5dd % for dx/dt I use xd etc
 O2A = 0.2; O4B = 0.7; BC = 0.6;
 O4O2 = 0.3; O4G4 = 0.4; BG5 = 0.3; yC = 0.9;
 m3= 0.5; m4= 6; m5= 4; m6= 2; J4=10; J5= 6; F=1000;
 T=0; J2= 100; w= 75*2*pi/60; J3=0;
 %setting up kinematics.
-q = [g;a;b];
-qd = [gd;ad;bd];
-qdd = [gdd; add; bdd];
-xA = O2A*cos(g);
-yA = O4O2+O2A*sin(g);
-xG4= O4G4*cos(a);
-yG4= O4G4*sin(a);
-xG5= O4B*cos(a)+BG5*cos(b);
-yG5= O4B*sin(a)+BG5*sin(b);
-xC = O4B*cos(a)+BC*cos(b);
+q = [theta2;theta4;theta5];
+qd = [theta2d;theta4d;theta5d];
+qdd = [theta2dd; theta4dd; theta5dd];
+xA = O2A*cos(theta2);
+yA = O4O2+O2A*sin(theta2);
+xG4= O4G4*cos(theta4);
+yG4= O4G4*sin(theta4);
+xG5= O4B*cos(theta4)+BG5*cos(theta5);
+yG5= O4B*sin(theta4)+BG5*sin(theta5);
+xC = O4B*cos(theta4)+BC*cos(theta5);
 %making Ti,k matrix
-Ki = [g;xA;yA;a;xG4;yG4;a;xG5;yG5;b;xC];%all kinematics combined
+Ki = [theta2;xA;yA;theta4;xG4;yG4;theta4;xG5;yG5;theta5;xC];%all kinematics combined
 Ti = jacobian(Ki, q);
 Tiv = Ti*qd; %velocity
 gk = jacobian(Tiv,q)*qd;
@@ -176,8 +176,8 @@ Tacc = jacobian(Tiv,qd)*qdd + jacobian(Tiv,q)*qd;
 %making Mass and gravity matrix and vector
 M = diag([J2 m3 m3 J3 m4 m4 J4 m5 m5 J5 m6]);
 % Constrains
-Cy = yC - O4B*sin(a)-BC*sin(b);
-ConA = O2A*cos(g)-sqrt((xA^2+yA^2))*cos(a);
+Cy = yC - O4B*sin(theta4)-BC*sin(theta5);
+ConA = O2A*cos(theta2)-sqrt((xA^2+yA^2))*cos(theta4);
 Constra = [Cy;ConA];
 CCd = jacobian(Constra,q);
 CCdd = jacobian(CCd*qd,q)*qd;
@@ -199,11 +199,11 @@ diary symb_Acc.m
 disp('Acc = ['), disp(Acc), disp('];');
 diary off
 % making starting position with the first values.
-a_start = atan((O4O2 + sin(g)*O2A)/(cos(g)*O2A));
-ad_start = jacobian(a_start,q)*qd;
-b_start = pi-asin((yC-O4B*sin(a_start))/BC);
-bd_start = jacobian(b_start,q)*qd;
-angels_start = [a_start; ad_start; b_start; bd_start];
+theta4_start = atan((O4O2 + sin(theta2)*O2A)/(cos(theta2)*O2A));
+theta4d_start = jacobian(theta4_start,q)*qd;
+theta5_start = pi-asin((yC-O4B*sin(theta4_start))/BC);
+theta5d_start = jacobian(theta5_start,q)*qd;
+angels_start = [theta4_start; theta4d_start; theta5_start; theta5d_start];
 if exist('start_angels.m', 'file')
 ! del start_angels.m
 end
