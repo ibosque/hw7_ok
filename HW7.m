@@ -30,17 +30,19 @@ idx = 0;
 time = 0:dt:tfinal;
 
 %% RK4 method with coordinate projection
+
 for idx = 1:length(time)
+    
 %calculate acceleration of angles, lambda's and slider
 [k1,l1(:,idx),s1(:,idx)] = compute_yd(yi(:,idx));
 [k2] = compute_yd(yi(:,idx) + dt/2*k1);
 [k3] = compute_yd(yi(:,idx) + dt/2*k2);
 [k4] = compute_yd(yi(:,idx) + dt*k3);
-ydi(:,idx) = 1/6*(k1+2*k2+2*k3+k4);
+ydi(:,idx) = 1/6*(k1 + 2*k2 + 2*k3 + k4);
+
 yi(:,idx+1) = yi(:,idx) + dt*ydi(:,idx);
 
 % Coordinate Projection Method
-
 O2A  = 0.2; 
 O4B  = 0.7; 
 BC   = 0.6;
@@ -69,47 +71,45 @@ yi(5,idx) = yi(5,idx)+error(3);
 end
 
 
-
-
 %% plotting system
 
 % Question B, angluar speed of cranks
 figure(1);
-plot(time,ydi(1,:)); hold on
-plot(time,ydi(3,:));
-plot(time,ydi(5,:));
+plot(time,ydi(1,:),'LineWidth',2); hold on
+plot(time,ydi(3,:),'LineWidth',2);
+plot(time,ydi(5,:),'LineWidth',2);
 title(' Angle speed ')
 xlabel('Time [sec] ')
 ylabel('Speed rad/s')
-legend('\theta 2', '\theta 3/4','\theta 5')
+legend('\theta_2', '\theta_4','\theta_5')
 
 % Question C, sliding speed
 figure(2);
 subplot(2,2,1);
-plot(time,s1(1,:)); hold on
+plot(time,s1(1,:),'LineWidth',2); hold on
 title(' Slider 3 & rocker 4 ')
 xlabel('Time [sec] ')
 ylabel('Speed rad/s')
 subplot(2,2,2);
-plot(time,s1(2,:));
+plot(time,s1(2,:),'LineWidth',2);
 title(' Horizontal position slider 6 ')
 xlabel('Time [sec] ')
 ylabel('Position [m]')
 subplot(2,2,3);
-plot(time,s1(3,:));
+plot(time,s1(3,:),'LineWidth',2);
 title(' Speed slider 6')
 xlabel('Time [sec] ')
 ylabel('Speed [m/s]')
 subplot(2,2,4);
-plot(time,s1(4,:));
+plot(time,s1(4,:),'LineWidth',2);
 title(' Acceleration slider 6 ')
 xlabel('Time [sec] ')
 ylabel('Acceleration [m/s^2]')
 
 % Question D, force plot
 figure(3); 
-plot(time,(Cforce(1,:))); hold on
-plot(time,Cforce(3,:));
+plot(time,(Cforce(1,:)),'LineWidth',2); hold on
+plot(time,Cforce(3,:),'LineWidth',2);
 title(' Normal forces ')
 xlabel('Time [sec] ')
 ylabel('Force [N]')
@@ -155,6 +155,7 @@ legend('Slider 3 on 4','Slider 6')
 % ylim([-0.5,1.5])
 % end
 function [yd, labda, Slider3] = compute_yd(yi)
+
 % yi, current value -> to yd velocity and acc
 theta2  = yi(1);
 theta2d = yi(2);
@@ -170,21 +171,24 @@ theta5dd = Acc(3);
 labda = Acc(4:5,1);
 symb_slid;
 Slider3 = slid;
+
 %projection version with constrain
 yd = [theta2d; theta2dd; theta4d; theta4dd; theta5d; theta5dd];
+
 end
 
 %TMT method
 function TMT_method()
 syms theta2 theta4 theta5
-syms theta2d theta4d theta5d theta2dd theta4dd theta5dd % for dx/dt I use xd etc
+syms theta2d theta4d theta5d theta2dd theta4dd theta5dd 
+
 O2A  = 0.2; 
 O4B  = 0.7; 
 BC   = 0.6;
 O4O2 = 0.3; 
 O4G4 = 0.4; 
 BG5  = 0.3; 
-yC   = 0.9;
+y6   = 0.9;
 
 m3 = 0.5; 
 m4 = 6;
@@ -198,7 +202,6 @@ J5 = 6;
 
 F = 1000;
 T = 0; 
- 
 w = 75*2*pi/60; 
 
 %setting up kinematics.
@@ -206,25 +209,27 @@ q   = [theta2;theta4;theta5];
 qd  = [theta2d;theta4d;theta5d];
 qdd = [theta2dd; theta4dd; theta5dd];
 
-xA = O2A*cos(theta2);
-yA = O4O2+O2A*sin(theta2);
-xG4= O4G4*cos(theta4);
-yG4= O4G4*sin(theta4);
-xG5= O4B*cos(theta4)+BG5*cos(theta5);
-yG5= O4B*sin(theta4)+BG5*sin(theta5);
-xC = O4B*cos(theta4)+BC*cos(theta5);
+x3  = O2A*cos(theta2);
+y3  = O4O2 + O2A*sin(theta2);
+x4 = O4G4*cos(theta4);
+y4 = O4G4*sin(theta4);
+x5 = O4B*cos(theta4) + BG5*cos(theta5);
+y5 = O4B*sin(theta4) + BG5*sin(theta5);
+x6  = O4B*cos(theta4) + BC*cos(theta5);
 
 %making Ti,k matrix
-Ki = [theta2;xA;yA;theta4;xG4;yG4;theta4;xG5;yG5;theta5;xC];%all kinematics combined
+Ki = [theta2; x3; y3; theta4; x4; y4; theta4; x5; y5; theta5; x6];%all kinematics combined
 Ti = jacobian(Ki, q);
 Tiv = Ti*qd; %velocity
 gk = jacobian(Tiv,q)*qd;
 Tacc = jacobian(Tiv,qd)*qdd + jacobian(Tiv,q)*qd;
+
 %making Mass and gravity matrix and vector
 M = diag([J2 m3 m3 J3 m4 m4 J4 m5 m5 J5 m6]);
+
 % Constraints
-C1 = yC - O4B*sin(theta4)-BC*sin(theta5);
-C2 = O2A*cos(theta2)-sqrt((xA^2+yA^2))*cos(theta4);
+C1 = y6 - O4B*sin(theta4) - BC*sin(theta5);
+C2 = O2A*cos(theta2) - sqrt((x3^2+y3^2))*cos(theta4);
 Constraints = [C1;C2];
 CCd = jacobian(Constraints,q);
 CCdd = jacobian(CCd*qd,q)*qd;
@@ -234,10 +239,12 @@ fi = [T; 0; 0; 0; 0; 0; 0; 0; 0; 0; F;];
 
 %making TMT matrix
 TMT = simplify([Ti.'*M*Ti CCd.';CCd zeros(2,2)]);
+
 % dTdot = TMT
 Q = Ti.'*(fi-M*gk);
 Ftot = simplify([Q; -CCdd]);
 Acc = TMT\Ftot;
+
 if exist('symb_Acc.m', 'file')
 ! del symb_Acc.m
 end
@@ -247,7 +254,7 @@ diary off
 % making starting position with the first values.
 theta4_start = atan((O4O2 + sin(theta2)*O2A)/(cos(theta2)*O2A));
 theta4d_start = jacobian(theta4_start,q)*qd;
-theta5_start = pi-asin((yC-O4B*sin(theta4_start))/BC);
+theta5_start = pi-asin((y6-O4B*sin(theta4_start))/BC);
 theta5d_start = jacobian(theta5_start,q)*qd;
 angels_start = [theta4_start; theta4d_start; theta5_start; theta5d_start];
 if exist('start_angels.m', 'file')
