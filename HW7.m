@@ -64,6 +64,10 @@ yi(1,idx) = yi(1,idx)+error(1);
 yi(3,idx) = yi(3,idx)+error(2);
 yi(5,idx) = yi(5,idx)+error(3);
 end
+
+
+
+
 %% plotting system
 figure(1);% angluar speed of cranks
 plot(time,ydi(1,:)); hold on
@@ -106,42 +110,45 @@ xlabel('Time [sec] ')
 ylabel('Force [N]')
 legend('Slider 3 on 4','Slider 6')
 
-%% simulation pot ctr+t to use
+% % simulation pot ctr+t to use
 % Use after first run, running while
-%
-figure(4);
-axis equal
-hold on;
-pause(1)
-O2A = 0.2; O4B = 0.7; BC = 0.6;
-O4O2 = 0.3; O4G4 = 0.4; BG5 = 0.3; yC = 0.9;
-m3= 0.5; m4= 6; m5= 4; m6= 2; J4=10; J5= 6; F=1000;
-T=0; J2= 100; w= 75*2*pi/60; J3=0;
-p0 = plot(0,0,'o'); hold on;
-p2 = plot(0,O4O2,'o');
-for n = 1:length(yi)
-xA = O2A*cos(yi(1,n));
-yA = O4O2+O2A*sin(yi(1,n));
-xG4= O4G4*cos(yi(3,n));
+% 
+% figure(4);
+% axis equal
+% hold on;
+% pause(1)
+% O2A = 0.2; O4B = 0.7; BC = 0.6;
+% O4O2 = 0.3; O4G4 = 0.4; BG5 = 0.3; yC = 0.9;
+% m3= 0.5; m4= 6; m5= 4; m6= 2; J4=10; J5= 6; F=1000;
+% T=0; J2= 100; w= 75*2*pi/60; J3=0;
+% p0 = plot(0,0,'o'); hold on;
+% p2 = plot(0,O4O2,'o');
 
-yG4= O4G4*sin(yi(3,n));
-xB = O4B*cos(yi(3,n));
-yB = O4B*sin(yi(3,n));
-xG5= O4B*cos(yi(3,n))+BG5*cos(yi(5,n));
-yG5= O4B*sin(yi(3,n))+BG5*sin(yi(5,n));
-xC = O4B*cos(yi(3,n))+BC*cos(yi(5,n));
-yC = O4B*sin(yi(3,n))+BC*sin(yi(5,n));
-p3 = plot([0 xA],[O4O2 yA],'b-');
-p4 = plot([0 xB],[0 yB], 'b-');
-p5 = plot([xB xC],[yB yC],'b-'); 
-% pause time speed of simulation
-pause(0.001)
-delete(p3)
-delete(p4)
-delete(p5)
-xlim([-1 0.6])
-ylim([-0.5,1.5])
-end
+
+
+% for n = 1:length(yi)
+% xA = O2A*cos(yi(1,n));
+% yA = O4O2+O2A*sin(yi(1,n));
+% xG4= O4G4*cos(yi(3,n));
+% 
+% yG4= O4G4*sin(yi(3,n));
+% xB = O4B*cos(yi(3,n));
+% yB = O4B*sin(yi(3,n));
+% xG5= O4B*cos(yi(3,n))+BG5*cos(yi(5,n));
+% yG5= O4B*sin(yi(3,n))+BG5*sin(yi(5,n));
+% xC = O4B*cos(yi(3,n))+BC*cos(yi(5,n));
+% yC = O4B*sin(yi(3,n))+BC*sin(yi(5,n));
+% p3 = plot([0 xA],[O4O2 yA],'b-');
+% p4 = plot([0 xB],[0 yB], 'b-');
+% p5 = plot([xB xC],[yB yC],'b-'); 
+% % pause time speed of simulation
+% pause(0.001)
+% delete(p3)
+% delete(p4)
+% delete(p5)
+% xlim([-1 0.6])
+% ylim([-0.5,1.5])
+% end
 function [ydot, labda, Slider3] = calcydot(yi)
 % yi, current value -> to ydot velocity and acc
 theta2  = yi(1);
