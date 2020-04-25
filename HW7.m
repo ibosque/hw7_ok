@@ -1,12 +1,13 @@
-%% Assignment 7
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HW7 Quick return mechanism
+% Due date: 28-4-2020
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 clear all
 close all
-%functions are below.
-%TMT calculates all values and write them to another file
-%( symb_acc gives
-%acc of angles, Symb_angels.m gives the starting position of
-%all angles, symb_slid gives slider acceleration)
-TMT_method()
+
+TMT_method() % Function which computes all the values
+
 w = 75;
 
 theta2 = 0;
@@ -22,19 +23,19 @@ theta5d = angels(4);
 yi = [theta2; theta2d; theta4; theta4d; theta5; theta5d];
 n = 8;
 t0 = 0;
-tfinal = 1.8; % two rounds is about 1.7... sec so i take 1.8s
+tfinal = 1.8; % seconds
 dt = tfinal/2^n;
-ydot = calcydot(yi);
+yd = compute_yd(yi);
 idx = 0;
 time = 0:dt:tfinal;
 
 %% RK4 method with coordinate projection
 for idx = 1:length(time)
 %calculate acceleration of angles, lambda's and slider
-[k1,l1(:,idx),s1(:,idx)] = calcydot(yi(:,idx));
-[k2] = calcydot(yi(:,idx) + dt/2*k1);
-[k3] = calcydot(yi(:,idx) + dt/2*k2);
-[k4] = calcydot(yi(:,idx) + dt*k3);
+[k1,l1(:,idx),s1(:,idx)] = compute_yd(yi(:,idx));
+[k2] = compute_yd(yi(:,idx) + dt/2*k1);
+[k3] = compute_yd(yi(:,idx) + dt/2*k2);
+[k4] = compute_yd(yi(:,idx) + dt*k3);
 ydi(:,idx) = 1/6*(k1+2*k2+2*k3+k4);
 yi(:,idx+1) = yi(:,idx) + dt*ydi(:,idx);
 
@@ -57,15 +58,23 @@ Constraints = [C1;C2];
 CCd = [0,-(7*cos(yi(3,idx)))/10, -(3*cos(yi(5,idx)))/5; (cos(yi(3,idx))*((2*cos(yi(1,idx))*sin(yi(1,idx)))/25 - (2*cos(yi(1,idx+1))*(sin(yi(1,idx))/5 + 2/5))/5))/(2*(cos(yi(1,idx))^2/25 + (sin(yi(1,idx))/5 + 2/5)^2)^(1/2)) - sin(yi(1,idx))/5, sin(yi(3,idx))*(cos(yi(1,idx))^2/25 + (sin(yi(1,idx))/5 + 2/5)^2)^(1/2), 0];
 Ce = CCd.'*inv(CCd*CCd.'); % making C plus
 error(:,idx) = Ce*-Constraints; % calculate the delta q
+
 %calculate constrain forces formula 5.20
 Cforce(:,idx) = -1*l1(:,idx).'*CCd;
+
 % Adding delta q
 yi(1,idx) = yi(1,idx)+error(1);
 yi(3,idx) = yi(3,idx)+error(2);
 yi(5,idx) = yi(5,idx)+error(3);
 end
+
+
+
+
 %% plotting system
-figure(1);% angluar speed of cranks
+
+% Question B, angluar speed of cranks
+figure(1);
 plot(time,ydi(1,:)); hold on
 plot(time,ydi(3,:));
 plot(time,ydi(5,:));
@@ -106,44 +115,47 @@ xlabel('Time [sec] ')
 ylabel('Force [N]')
 legend('Slider 3 on 4','Slider 6')
 
-%% simulation pot ctr+t to use
+% % simulation pot ctr+t to use
 % Use after first run, running while
-%
-figure(4);
-axis equal
-hold on;
-pause(1)
-O2A = 0.2; O4B = 0.7; BC = 0.6;
-O4O2 = 0.3; O4G4 = 0.4; BG5 = 0.3; yC = 0.9;
-m3= 0.5; m4= 6; m5= 4; m6= 2; J4=10; J5= 6; F=1000;
-T=0; J2= 100; w= 75*2*pi/60; J3=0;
-p0 = plot(0,0,'o'); hold on;
-p2 = plot(0,O4O2,'o');
-for n = 1:length(yi)
-xA = O2A*cos(yi(1,n));
-yA = O4O2+O2A*sin(yi(1,n));
-xG4= O4G4*cos(yi(3,n));
+% 
+% figure(4);
+% axis equal
+% hold on;
+% pause(1)
+% O2A = 0.2; O4B = 0.7; BC = 0.6;
+% O4O2 = 0.3; O4G4 = 0.4; BG5 = 0.3; yC = 0.9;
+% m3= 0.5; m4= 6; m5= 4; m6= 2; J4=10; J5= 6; F=1000;
+% T=0; J2= 100; w= 75*2*pi/60; J3=0;
+% p0 = plot(0,0,'o'); hold on;
+% p2 = plot(0,O4O2,'o');
 
-yG4= O4G4*sin(yi(3,n));
-xB = O4B*cos(yi(3,n));
-yB = O4B*sin(yi(3,n));
-xG5= O4B*cos(yi(3,n))+BG5*cos(yi(5,n));
-yG5= O4B*sin(yi(3,n))+BG5*sin(yi(5,n));
-xC = O4B*cos(yi(3,n))+BC*cos(yi(5,n));
-yC = O4B*sin(yi(3,n))+BC*sin(yi(5,n));
-p3 = plot([0 xA],[O4O2 yA],'b-');
-p4 = plot([0 xB],[0 yB], 'b-');
-p5 = plot([xB xC],[yB yC],'b-'); 
-% pause time speed of simulation
-pause(0.001)
-delete(p3)
-delete(p4)
-delete(p5)
-xlim([-1 0.6])
-ylim([-0.5,1.5])
-end
-function [ydot, labda, Slider3] = calcydot(yi)
-% yi, current value -> to ydot velocity and acc
+
+
+% for n = 1:length(yi)
+% xA = O2A*cos(yi(1,n));
+% yA = O4O2+O2A*sin(yi(1,n));
+% xG4= O4G4*cos(yi(3,n));
+% 
+% yG4= O4G4*sin(yi(3,n));
+% xB = O4B*cos(yi(3,n));
+% yB = O4B*sin(yi(3,n));
+% xG5= O4B*cos(yi(3,n))+BG5*cos(yi(5,n));
+% yG5= O4B*sin(yi(3,n))+BG5*sin(yi(5,n));
+% xC = O4B*cos(yi(3,n))+BC*cos(yi(5,n));
+% yC = O4B*sin(yi(3,n))+BC*sin(yi(5,n));
+% p3 = plot([0 xA],[O4O2 yA],'b-');
+% p4 = plot([0 xB],[0 yB], 'b-');
+% p5 = plot([xB xC],[yB yC],'b-'); 
+% % pause time speed of simulation
+% pause(0.001)
+% delete(p3)
+% delete(p4)
+% delete(p5)
+% xlim([-1 0.6])
+% ylim([-0.5,1.5])
+% end
+function [yd, labda, Slider3] = compute_yd(yi)
+% yi, current value -> to yd velocity and acc
 theta2  = yi(1);
 theta2d = yi(2);
 theta4  = yi(3);
@@ -159,10 +171,10 @@ labda = Acc(4:5,1);
 symb_slid;
 Slider3 = slid;
 %projection version with constrain
-ydot = [theta2d; theta2dd; theta4d; theta4dd; theta5d; theta5dd];
+yd = [theta2d; theta2dd; theta4d; theta4dd; theta5d; theta5dd];
 end
-%TMT method
 
+%TMT method
 function TMT_method()
 syms theta2 theta4 theta5
 syms theta2d theta4d theta5d theta2dd theta4dd theta5dd % for dx/dt I use xd etc
